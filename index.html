@@ -1,0 +1,343 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <title></title>
+
+    <style type="text/css">
+    body {
+      font-size:10px;
+      font-family:Verdana, Arial, Helvetiva, sans-serif;
+      padding:0px;
+      margin:0px;
+      text-align:center;
+      background-color:#000;
+    }
+    #game {
+      text-align:left;
+      margin:0px auto;
+      width:320px;
+      position:relative;
+      z-index:800;
+    }
+    #modal {
+      position:absolute;
+      top:0px;
+      left:0px;
+      width:320px;
+      height:342px;
+      text-align:center;
+      background-color:#000;
+      opacity:0.8;
+      -k-opacity:0.8;
+      -moz-opacity:0.8;
+      filter:alpha(opacity=80);
+      display:none;
+    }
+    #modal2, #modal3 {
+      position:absolute;
+      top:0px;
+      left:0px;
+      width:320px;
+      height:262px;
+      text-align:center;
+      z-index:22;
+      padding-top:80px;
+      background-color:transparent;
+      display:none;
+      color:#fff;
+    }
+    
+    #canvas {
+      position:relative;
+      background:#000 url("runes.png") no-repeat 0px -64px;
+      z-index:-1;
+    }
+    .cap {
+      display:block;
+      background-color:#999;
+      position: absolute;
+    }
+    .cap span { display: none; }
+    .cap0 { background:transparent url("runes.png") no-repeat 0px 0px; }
+    .cap1 { background:transparent url("runes.png") no-repeat -32px 0px; }
+    .cap2 { background:transparent url("runes.png") no-repeat -64px 0px; }
+    .cap3 { background:transparent url("runes.png") no-repeat -96px 0px; }
+    .cap4 { background:transparent url("runes.png") no-repeat -128px 0px; }
+    .cap5 { background:transparent url("runes.png") no-repeat -160px 0px; }
+    .cap6 { background:transparent url("runes.png") no-repeat -192px 0px; }
+    .cap7 { background:transparent url("runes.png") no-repeat -224px 0px; }
+    .cap8 { background:transparent url("runes.png") no-repeat -256px 0px; }
+    .cap9 { background:transparent url("runes.png") no-repeat -288px 0px; }
+    .cap10 { background:transparent url("runes.png") no-repeat 0px -32px; }
+    .cap11 { background:transparent url("runes.png") no-repeat -32px -32px; }
+    .cap12 { background:transparent url("runes.png") no-repeat -64px -32px; }
+    .cap13 { background:transparent url("runes.png") no-repeat -96px -32px; }
+    .cap14 { background:transparent url("runes.png") no-repeat -128px -32px; }
+    
+    div.clearer {
+      clear:both;
+      visibility:hidden;
+      height:1px;
+      min-height:1px;
+      line-height:1px;
+    }
+    
+    #tip {
+      float:left;
+      width:150px;
+      height:31px;
+      background-color:#000;
+      color:#fff;
+      border-top:1px solid #999;
+    }
+    #tip span {
+      display:block;
+      padding-top:10px;
+    }
+    #timer {
+      float:left;
+      width:170px;
+      height:31px;
+      background-color:#000;
+      color:#fff;
+      border-top:1px solid #999;
+    }
+    #catch { float:right; margin-right:50px; }
+    a { color:#fff; outline:none; }
+    </style>
+  </head>
+  <body>
+    <div id="game">
+      <div id="modal"></div>
+      <div id="modal2">
+        <h1>You have won!</h1>
+        <h3>Your time is <span></span> seconds</h3>
+        <button id="restart">Try again!</button>
+      </div>
+      <div id="modal3">
+        <h1>Catch the runes!</h1>
+        <p>
+          The goal of the game is catch all magic runes as fast as you can!
+          To catch the rune you need exactly click on it!
+        </p>
+        <button id="start">Start game</button>
+      </div>
+      <div id="canvas"></div>
+      <div id="timer">
+      Your time: <span></span>
+      <div id="personal_record"></div>
+      </div>
+      <div id="tip"><div id="catch"></div><span>Catch this</span></div>
+      <div class="clearer"></div>
+    </div>
+    
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+    //<![CDATA[
+    jQuery.jQueryRandom = 0;  
+    jQuery.extend(jQuery.expr[":"],  
+    {  
+     random: function(a, i, m, r) {  
+       if (i == 0) {  
+         jQuery.jQueryRandom = Math.floor(Math.random() * r.length);  
+       };  
+       return i == jQuery.jQueryRandom;
+     }  
+    });
+    
+    var game = {};
+    game.CANVAS_WIDTH  = 320;
+    game.CANVAS_HEIGHT = 310;
+    game.NUM_OF_CAPS   = 15;
+    game.CAP_WIDTH     = 32;
+    game.CAP_HEIGHT    = 32;
+    game.TIMEOUT       = 3000; //speed
+    game.pause         = false;
+    var timer, timer2;
+    var pictures = new Array();
+    
+    
+    function startGame() {
+      
+      $("#timer span").html(0.0);
+      var personal_record = (getCookie('catch_record'));
+      if( personal_record != "") {
+          $("#personal_record").html("Personal record " + personal_record);
+      }
+      
+      for( var i = 0; i < game.NUM_OF_CAPS; i++) {
+        var cap = $("<a class='cap' href='#'><span>" + i + "</span></a>")
+                  .css("top", Math.random() * (game.CANVAS_HEIGHT - game.CAP_HEIGHT))
+                  .css("left", Math.random() * (game.CANVAS_WIDTH - game.CAP_WIDTH))
+                  .css("width", game.CAP_WIDTH)
+                  .css("height", game.CAP_HEIGHT)
+                  .css("z-index", i)
+                  .addClass('cap' + i);
+        
+        $("#canvas").append(cap);
+      }
+      animate();
+      activate();
+      timer  = setInterval("animate()", game.TIMEOUT);
+      timer2 = setInterval("updateTime()", 100);
+      
+  
+      $("#canvas a").bind("click", function() {
+        
+        if( $(this).hasClass("active")) {
+          var cap = $(this);
+          $(this).fadeOut("fast", function() {
+            cap.remove();
+          });
+          activate();
+        }
+        return false;
+        
+      });
+      
+      $("#restart").bind("click", startGame);
+      $("#modal, #modal2, #modal3").hide();
+    }
+    /**
+     *  main
+     *
+     *  @void
+     */
+    $(function() {
+      $("#modal3, #modal").show();
+      $("#catch").css("width", game.CAP_WIDTH + "px")
+                 .css("height", game.CAP_HEIGHT + "px")
+      $("#canvas").css("width", game.CANVAS_WIDTH + "px")
+                  .css("height", game.CANVAS_HEIGHT + "px");
+      $("#start").bind("click", startGame);
+    }); // end of main
+    
+    /**
+     *  Animates the caps, see duration to achive different effects
+     *  
+     *  @void
+     */
+    function animate()
+    {
+      $(".cap").each(function() {
+        var new_height = parseInt(Math.random() * (game.CANVAS_HEIGHT - game.CAP_HEIGHT));
+        var new_width  = parseInt(Math.random() * (game.CANVAS_WIDTH - game.CAP_WIDTH));
+        $(this).animate(
+          {
+            top:  new_height,
+            left: new_width
+          },
+          {
+            queue:    false,
+            duration: game.TIMEOUT/* * Math.random()*/,
+            easing:   "linear"
+          }
+        );
+      });
+    }
+    
+    /**
+     *  Activate cap for pressing
+     *
+     *  @void
+     */
+    function activate()
+    {
+      if( $("a.cap").size() - 1 > 0) {
+        var el = $("a.cap:not(.active):random");
+        el.addClass("active");
+        $("#catch").removeClass();
+        $("#catch").addClass("cap" + el.children("span").html());
+        //$("#catch").html(el.children("span").html())
+      } else {
+        win();
+      }
+      
+      return;
+    }
+    
+    /**
+     *  Updates the time (score)
+     *
+     *  @void
+     */
+    function updateTime()
+    {
+      var val = parseFloat($("#timer span").html());
+      val += 0.1;
+      $("#timer span").html(val.toFixed(1));
+    }
+    
+    /**
+     *  Action when you win
+     *
+     *  @void
+     */
+    function win()
+    {
+      game.pause = true;
+      clearInterval(timer);
+      clearInterval(timer2);
+      var elapsedTime = parseFloat($("#timer span").html());
+      var rec = parseFloat(getCookie("catch_record"));
+      
+      $("#modal, #modal2").show();
+      $("#modal2 h3 span").html(elapsedTime);
+      $("#catch").html("");
+      
+      if( getCookie("catch_record").length <= 0) {
+        setCookie('catch_record', elapsedTime, 30);
+      } else {
+        if( rec > elapsedTime) {
+          setCookie('catch_record', elapsedTime, 30);
+        }
+      }
+      
+    }
+    
+    /**
+     *  Sets the cookie
+     * 
+     *  @param string
+     *  @param string
+     *  @param integer
+     *
+     *  @void
+     */
+    function setCookie(c_name, value, expiredays)
+    {
+        //document.cookie = "";
+        var exdate=new Date();
+        //exdate.setDate(exdate.getDate()+expiredays);
+        exdate.setTime(exdate.getTime() + 1000 * 60 * 60 * 2 * expiredays);
+        document.cookie=c_name+ "=" +escape(value)+";expires="+exdate.toUTCString()+";path=/misc/catch/";
+        //alert(c_name+ "=" +escape(value)+((expiredays==null) ? "" : ";bandwidth=3;expires="+exdate.toGMTString())+";path=/");
+    }
+    /**
+     *  Gets cookie by it's name
+     *
+     *  @param string  
+     *
+     *  @return string
+     */
+    function getCookie(c_name)
+    {
+    if (document.cookie.length > 0)
+      {
+      c_start=document.cookie.indexOf(c_name + "=");
+      if (c_start!=-1)
+        {
+        c_start=c_start + c_name.length+1;
+        c_end=document.cookie.indexOf(";",c_start);
+        if (c_end==-1) c_end=document.cookie.length;
+        return unescape(document.cookie.substring(c_start,c_end));
+        }
+      }
+    return "";
+    }
+    //]]>
+    </script>
+  </body>
+</html>
