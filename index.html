@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-    <title></title>
+    <title>Catch the runes</title>
 
     <style type="text/css">
     body {
@@ -18,6 +18,7 @@
       text-align:left;
       margin:0px auto;
       width:320px;
+      height:315px;
       position:relative;
       z-index:800;
     }
@@ -26,7 +27,7 @@
       top:0px;
       left:0px;
       width:320px;
-      height:342px;
+      height:370px;
       text-align:center;
       background-color:#000;
       opacity:0.8;
@@ -40,7 +41,7 @@
       top:0px;
       left:0px;
       width:320px;
-      height:262px;
+      height:302px;
       text-align:center;
       z-index:22;
       padding-top:80px;
@@ -51,7 +52,7 @@
     
     #canvas {
       position:relative;
-      background:#000 url("runes.png") no-repeat 0px -64px;
+      background:#000 url("runes.png") no-repeat 0px -144px;
       z-index:-1;
     }
     .cap {
@@ -61,20 +62,20 @@
     }
     .cap span { display: none; }
     .cap0 { background:transparent url("runes.png") no-repeat 0px 0px; }
-    .cap1 { background:transparent url("runes.png") no-repeat -32px 0px; }
-    .cap2 { background:transparent url("runes.png") no-repeat -64px 0px; }
-    .cap3 { background:transparent url("runes.png") no-repeat -96px 0px; }
-    .cap4 { background:transparent url("runes.png") no-repeat -128px 0px; }
-    .cap5 { background:transparent url("runes.png") no-repeat -160px 0px; }
-    .cap6 { background:transparent url("runes.png") no-repeat -192px 0px; }
-    .cap7 { background:transparent url("runes.png") no-repeat -224px 0px; }
-    .cap8 { background:transparent url("runes.png") no-repeat -256px 0px; }
-    .cap9 { background:transparent url("runes.png") no-repeat -288px 0px; }
-    .cap10 { background:transparent url("runes.png") no-repeat 0px -32px; }
-    .cap11 { background:transparent url("runes.png") no-repeat -32px -32px; }
-    .cap12 { background:transparent url("runes.png") no-repeat -64px -32px; }
-    .cap13 { background:transparent url("runes.png") no-repeat -96px -32px; }
-    .cap14 { background:transparent url("runes.png") no-repeat -128px -32px; }
+    .cap1 { background:transparent url("runes.png") no-repeat -48px 0px; }
+    .cap2 { background:transparent url("runes.png") no-repeat -96px 0px; }
+    .cap3 { background:transparent url("runes.png") no-repeat -144px 0px; }
+    .cap4 { background:transparent url("runes.png") no-repeat -192px 0px; }
+    .cap5 { background:transparent url("runes.png") no-repeat -240px 0px; }
+    .cap6 { background:transparent url("runes.png") no-repeat 0px -48px; }
+    .cap7 { background:transparent url("runes.png") no-repeat -48px -48px; }
+    .cap8 { background:transparent url("runes.png") no-repeat -96px -48px; }
+    .cap9 { background:transparent url("runes.png") no-repeat -144px -48px; }
+    .cap10 { background:transparent url("runes.png") no-repeat -192px -48px; }
+    .cap11 { background:transparent url("runes.png") no-repeat -240px -48px; }
+    .cap12 { background:transparent url("runes.png") no-repeat 0px -96px; }
+    .cap13 { background:transparent url("runes.png") no-repeat -48px -96px; }
+    .cap14 { background:transparent url("runes.png") no-repeat -96px -96px; }
     
     div.clearer {
       clear:both;
@@ -83,29 +84,42 @@
       min-height:1px;
       line-height:1px;
     }
-    
-    #tip {
-      float:left;
-      width:150px;
-      height:31px;
-      background-color:#000;
-      color:#fff;
-      border-top:1px solid #999;
-    }
-    #tip span {
-      display:block;
-      padding-top:10px;
+    #tools {
+      position:relative;
+      width: 320px;
+      height:55px;
+      background:transparent url("runes.png") no-repeat bottom left;
     }
     #timer {
       float:left;
-      width:170px;
-      height:31px;
-      background-color:#000;
       color:#fff;
-      border-top:1px solid #999;
+      position:absolute;
+      top:12px;
+      left:33px;
     }
-    #catch { float:right; margin-right:50px; }
+    #catch {
+      position:absolute;
+      top:2px;
+      right:34px;
+    }
     a { color:#fff; outline:none; }
+    .active {
+      z-index:300;
+    }
+    .button {
+      -webkit-border-radius: 10px;
+      -moz-border-radius: 10px;
+      border-radius: 10px;
+      border: 1px solid #8b8c8e;
+      padding: 7px 18px;
+      background-color: #7e90aa;
+      color: #fff;
+      font-weight:bold;
+      font-size: 18px;
+      font-family: Arial, Helvetica, sans-serif;
+      text-shadow: #666 2px 1px 1px;
+      cursor: pointer;
+    }
     </style>
   </head>
   <body>
@@ -114,7 +128,7 @@
       <div id="modal2">
         <h1>You have won!</h1>
         <h3>Your time is <span></span> seconds</h3>
-        <button id="restart">Try again!</button>
+        <button id="restart" class="button">Play again!</button>
       </div>
       <div id="modal3">
         <h1>Catch the runes!</h1>
@@ -122,15 +136,16 @@
           The goal of the game is catch all magic runes as fast as you can!
           To catch the rune you need exactly click on it!
         </p>
-        <button id="start">Start game</button>
+        <button id="start" class="button">Start game</button>
       </div>
       <div id="canvas"></div>
-      <div id="timer">
-      Your time: <span></span>
-      <div id="personal_record"></div>
+      <div id="tools">
+        <div id="timer">
+          Your time: <span></span>
+          <div id="personal_record"></div>
+        </div>
+        <div id="catch"></div>
       </div>
-      <div id="tip"><div id="catch"></div><span>Catch this</span></div>
-      <div class="clearer"></div>
     </div>
     
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript" charset="utf-8"></script>
@@ -150,9 +165,9 @@
     var game = {};
     game.CANVAS_WIDTH  = 320;
     game.CANVAS_HEIGHT = 310;
-    game.NUM_OF_CAPS   = 15;
-    game.CAP_WIDTH     = 32;
-    game.CAP_HEIGHT    = 32;
+    game.NUM_OF_CAPS   = 15; // 15 is max
+    game.CAP_WIDTH     = 48;
+    game.CAP_HEIGHT    = 48;
     game.TIMEOUT       = 3000; //speed
     game.pause         = false;
     var timer, timer2;
@@ -164,7 +179,7 @@
       $("#timer span").html(0.0);
       var personal_record = (getCookie('catch_record'));
       if( personal_record != "") {
-          $("#personal_record").html("Personal record " + personal_record);
+          $("#personal_record").html("Top time: " + personal_record);
       }
       
       for( var i = 0; i < game.NUM_OF_CAPS; i++) {
@@ -184,19 +199,22 @@
       timer2 = setInterval("updateTime()", 100);
       
   
-      $("#canvas a").bind("click", function() {
+      $("#canvas a.cap").bind("click", function() {
         
         if( $(this).hasClass("active")) {
           var cap = $(this);
-          $(this).fadeOut("fast", function() {
+          /* .fadeOut("fast", function() {
             cap.remove();
-          });
+          }); */
+          cap.remove();
           activate();
         }
         return false;
         
       });
       
+      // unbind all stuff before bind again
+      $("#restart").unbind();
       $("#restart").bind("click", startGame);
       $("#modal, #modal2, #modal3").hide();
     }
@@ -208,7 +226,7 @@
     $(function() {
       $("#modal3, #modal").show();
       $("#catch").css("width", game.CAP_WIDTH + "px")
-                 .css("height", game.CAP_HEIGHT + "px")
+                 .css("height", game.CAP_HEIGHT + "px");
       $("#canvas").css("width", game.CANVAS_WIDTH + "px")
                   .css("height", game.CANVAS_HEIGHT + "px");
       $("#start").bind("click", startGame);
@@ -222,8 +240,8 @@
     function animate()
     {
       $(".cap").each(function() {
-        var new_height = parseInt(Math.random() * (game.CANVAS_HEIGHT - game.CAP_HEIGHT));
-        var new_width  = parseInt(Math.random() * (game.CANVAS_WIDTH - game.CAP_WIDTH));
+        var new_height = Math.random() * (game.CANVAS_HEIGHT - game.CAP_HEIGHT);
+        var new_width  = Math.random() * (game.CANVAS_WIDTH - game.CAP_WIDTH);
         $(this).animate(
           {
             top:  new_height,
@@ -245,9 +263,9 @@
      */
     function activate()
     {
-      if( $("a.cap").size() - 1 > 0) {
+      if( $("a.cap").size() > 0) {
         var el = $("a.cap:not(.active):random");
-        el.addClass("active");
+        el.css("z-index", 20).addClass("active");
         $("#catch").removeClass();
         $("#catch").addClass("cap" + el.children("span").html());
         //$("#catch").html(el.children("span").html())
@@ -281,17 +299,16 @@
       clearInterval(timer);
       clearInterval(timer2);
       var elapsedTime = parseFloat($("#timer span").html());
-      var rec = parseFloat(getCookie("catch_record"));
-      
+      var rec = getCookie("catch_record");
       $("#modal, #modal2").show();
       $("#modal2 h3 span").html(elapsedTime);
       $("#catch").html("");
       
       if( getCookie("catch_record").length <= 0) {
-        setCookie('catch_record', elapsedTime, 30);
+        setCookie('catch_record', elapsedTime, 30, '/misc/runes/');
       } else {
         if( rec > elapsedTime) {
-          setCookie('catch_record', elapsedTime, 30);
+          setCookie('catch_record', elapsedTime, 30, '/misc/runes/');
         }
       }
       
@@ -306,13 +323,13 @@
      *
      *  @void
      */
-    function setCookie(c_name, value, expiredays)
+    function setCookie(c_name, value, expiredays, path)
     {
         //document.cookie = "";
         var exdate=new Date();
         //exdate.setDate(exdate.getDate()+expiredays);
         exdate.setTime(exdate.getTime() + 1000 * 60 * 60 * 2 * expiredays);
-        document.cookie=c_name+ "=" +escape(value)+";expires="+exdate.toUTCString()+";path=/misc/catch/";
+        document.cookie=c_name+ "=" +escape(value)+";expires="+exdate.toUTCString()+";path=" + path;
         //alert(c_name+ "=" +escape(value)+((expiredays==null) ? "" : ";bandwidth=3;expires="+exdate.toGMTString())+";path=/");
     }
     /**
